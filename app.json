@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Product Photo Organizer",
+    "slug": "product-photo-organizer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "com.baalaabdou.productphotoorganizer",
+      "permissions": ["READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE"],
+      "versionCode": 1
+    },
+    "extra": {
+      "geminiApiKeyHint": "Set GEMINI_API_KEY in .env, never commit real keys"
+    }
+  }
+}
