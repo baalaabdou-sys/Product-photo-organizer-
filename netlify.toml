@@ -14,12 +14,11 @@
   # Icons are committed, so the native image toolchain is never needed here.
   NPM_FLAGS = "--no-audit --no-fund"
 
-# The app keeps its view state in memory rather than in the URL, but a deep
-# link or a refresh on any path should still land on the app shell.
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Deliberately no SPA catch-all redirect. The app has no client-side router —
+# it keeps view state in memory, so nothing ever produces a deep link — and
+# its assets are referenced relatively so the bundle stays portable. A catch-all
+# would answer an unknown path with an app shell whose relative asset paths
+# resolve against that path and 404, which is worse than an honest 404.
 
 # The service worker must never be served from a stale cache, or an update
 # can never reach an installed copy of the app.
