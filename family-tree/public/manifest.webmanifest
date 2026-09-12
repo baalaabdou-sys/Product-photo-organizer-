@@ -1,0 +1,27 @@
+{
+  "name": "Abderrahmane Family Tree",
+  "short_name": "Abderrahmane",
+  "description": "A living archive of the Abderrahmane family — generations, stories and photographs, preserved.",
+  "id": "/abderrahmane-family-tree",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f8f4ec",
+  "theme_color": "#f8f4ec",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "education", "utilities"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Family tree", "short_name": "Tree", "url": "./index.html#tree", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Archive", "short_name": "Archive", "url": "./index.html#archive", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

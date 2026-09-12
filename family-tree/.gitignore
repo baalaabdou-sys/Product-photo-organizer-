@@ -1,0 +1,8 @@
+
+# never commit compiled output beside the sources
+*.tmp.mjs
+*.tsbuildinfo
+.testbuild/
+dist/
+node_modules/
+src/**/*.js
