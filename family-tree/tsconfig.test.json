@@ -11,5 +11,5 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/domain", "src/gedcom", "src/data/demo.ts", "src/data/types.ts"]
+  "include": ["src/domain", "src/gedcom", "src/data/types.ts"]
 }

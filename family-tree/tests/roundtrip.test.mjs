@@ -18,7 +18,7 @@ const { toGedcom, toJson } = await import('../.testbuild/gedcom/serialize.js');
 const { FamilyGraph } = await import('../.testbuild/domain/graph.js');
 const { describeRelationship, findPath } = await import('../.testbuild/domain/relationships.js');
 const { reviewFamily } = await import('../.testbuild/domain/validate.js');
-const { demoFamily } = await import('../.testbuild/data/demo.js');
+const family = JSON.parse(readFileSync(new URL('../src/data/family.json', import.meta.url), 'utf8'));
 const { buildPreview, applyImport } = await import('../.testbuild/gedcom/import.js');
 const { formatDate, parseGedcomDate, toGedcomDate } = await import('../.testbuild/domain/dates.js');
 
@@ -92,11 +92,23 @@ ok(cycG.wouldCreateCycle(nabil.id, omar.id) || true, 'cycle predicate runs');
 ok(new FamilyGraph(rep.data).wouldCreateCycle(nabil.id, omar.id) === true, 'predicts a cycle before it is made');
 ok(new FamilyGraph(rep.data).wouldCreateCycle(omar.id, nabil.id) === false, 'allows a legitimate parent link');
 
-console.log('\nDemo data');
-const demo = demoFamily();
-ok(demo.people.every((p) => p.metadata.demo === true), 'every demo person is flagged');
-ok(demo.people.every((p) => p.lastName !== 'Abderrahmane'), 'no demo record claims the family name');
-eq(reviewFamily(demo).filter((i) => i.severity === 'error').length, 0, 'demo data has no errors');
+console.log('\nThe Abderrahmane family');
+const fg = new FamilyGraph(family);
+eq(family.people.length, 76, 'all 76 people from the FamilyEcho chart');
+eq(fg.generations, 5, 'five generations');
+eq(fg.componentCount, 1, 'everyone is connected to everyone else');
+eq(reviewFamily(family).filter((i) => i.severity === 'error').length, 0, 'no integrity errors');
+const fam = (n) => [...fg.people.values()].filter((p) => p.firstName === n);
+const halima = fam('حليمة')[0];
+eq(fg.partners(halima.id).map((p) => p.firstName), ['محمد'], 'Halima married Mohamed');
+eq(fg.children(halima.id).length, 7, 'Halima and Mohamed had seven children');
+const abderrahmane = fam('عبدالرحمان')[0];
+eq(describeRelationship(fg, abderrahmane.id, halima.id).label, 'Grandmother', 'Halima is Abderrahmane\'s grandmother');
+
+// A stand-in archive of flagged demonstration records, to test their removal.
+const demo = JSON.parse(JSON.stringify(rep.data));
+for (const p of demo.people) { p.id = `demo_${p.id}`; p.metadata.demo = true; p.metadata.sourceId = undefined; p.firstName += 'x'; }
+demo.parentage = []; demo.unions = [];
 
 console.log('\nImport merge');
 const file = { name: 'family.ged', text: async () => GED };

@@ -230,7 +230,7 @@ export class FamilyGraph {
     for (const p of this.people.values()) gen.set(p.id, 0);
 
     const order = this.topoOrder();
-    for (let pass = 0; pass < 4; pass++) {
+    for (let pass = 0; pass < 12; pass++) {
       let changed = false;
       for (const id of order) {
         let g = gen.get(id)!;
@@ -250,6 +250,18 @@ export class FamilyGraph {
             gen.set(u.personA, m); gen.set(u.personB, m); changed = true;
           }
         }
+      }
+      // A couple with no recorded parents floats to the top by default. When
+      // one of their children married into a deeper line, that would leave
+      // the rest of their children a generation too high — so pull such a
+      // root down to sit directly above its deepest child, and let the
+      // relaxation above carry everyone below them down with it.
+      for (const p of this.people.values()) {
+        if (this.parents(p.id).length) continue;
+        const kids = this.children(p.id);
+        if (!kids.length) continue;
+        const target = Math.max(...kids.map((k) => gen.get(k.id)!)) - 1;
+        if (target > gen.get(p.id)!) { gen.set(p.id, target); changed = true; }
       }
       if (!changed) break;
     }

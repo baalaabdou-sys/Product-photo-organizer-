@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { FamilyData, ID, Person, Role, Union, ParentChild, Story, FamilyEvent, Media } from '../domain/types';
 import { emptyFamily } from '../domain/types';
 import { FamilyGraph } from '../domain/graph';
-import { demoFamily, DEMO_ME } from './demo';
+import { familyTree } from './family';
 import { loadArchive, saveArchive, snapshot, getSetting, setSetting, flushArchive } from './db';
 
 export type ViewKey =
@@ -97,13 +97,16 @@ export const useArchive = create<ArchiveState>((set, get) => ({
     ]);
 
     let data = stored;
-    let me = meId;
-    if (!data || !data.people.length) {
-      data = demoFamily();
-      me = DEMO_ME;
+    // A first visit, or a device still holding the demonstration family from an
+    // earlier version, starts from the real family. Anything else is the
+    // family's own edited archive and is never overwritten.
+    const outdated = data?.people.some((p) => p.metadata.demo);
+    if (!data || !data.people.length || outdated) {
+      if (data && outdated) await snapshot('Before replacing the demonstration family', data);
+      data = familyTree();
       saveArchive(data);
-      void setSetting('meId', me);
     }
+    const me = meId;
     applyTheme(theme);
     set({
       data,

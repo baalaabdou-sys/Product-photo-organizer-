@@ -68,6 +68,23 @@ export interface LayoutOptions {
 export function layoutFamily(g: FamilyGraph, opts: LayoutOptions = {}): TreeLayout {
   const collapsed = opts.collapsed ?? new Set<ID>();
   const include = visibleSet(g, opts);
+  // Everyone below a folded branch leaves the canvas entirely, so no later
+  // pass can place them. The folded person themselves stays, with a count.
+  const reachable = new Set(include);
+  for (const c of collapsed) {
+    if (!include.has(c)) continue;
+    for (const d of g.descendants(c).keys()) if (!collapsed.has(d)) include.delete(d);
+  }
+  // Someone who married into a folded branch goes with it.
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const id of [...include]) {
+      if (g.parents(id).some((p) => include.has(p.id))) continue;
+      if (g.children(id).some((c) => include.has(c.id))) continue;
+      const partners = g.partners(id);
+      if (partners.length && partners.every((p) => !include.has(p.id))) { include.delete(id); changed = true; }
+    }
+  }
 
   const nodes = new Map<ID, LaidNode>();
   const unions: LaidUnion[] = [];
@@ -125,7 +142,8 @@ export function layoutFamily(g: FamilyGraph, opts: LayoutOptions = {}): TreeLayo
     let descendants: ID[] = [];
     if (!isCollapsed) {
       for (const u of myUnions) {
-        const kids = g.childrenOfUnion(u.id).map((c) => c.id).filter((id) => include.has(id) && !placed.has(id));
+        const kids = marriedOutLast(g, g.childrenOfUnion(u.id).map((c) => c.id), [u.personA, u.personB])
+          .filter((id) => include.has(id) && !placed.has(id));
         if (!kids.length) continue;
         const desc: ID[] = [];
         for (const kid of kids) desc.push(...placeCluster(kid));
@@ -172,7 +190,8 @@ export function layoutFamily(g: FamilyGraph, opts: LayoutOptions = {}): TreeLayo
         x: x + i * (NODE_W + SPOUSE_GAP),
         y: gen * GEN_H,
         gen,
-        hidden: isCollapsed ? countHidden(g, id, include) : 0,
+        // One fold chip per household, under the first partner.
+        hidden: isCollapsed && i === 0 ? countHidden(g, id, reachable) : 0,
         collapsed: isCollapsed,
       });
     });
@@ -241,7 +260,42 @@ export function layoutFamily(g: FamilyGraph, opts: LayoutOptions = {}): TreeLayo
     }
   }
 
+  /**
+   * When two families are joined by a marriage, the couple is placed once, in
+   * one family — so the line up to the other set of parents still has to be
+   * drawn. Add every parent link whose two ends are on the canvas.
+   */
+  function linkAcrossFamilies() {
+    const linked = new Set(links.map((l) => l.childId + '|' + l.id.split('->')[0]));
+    for (const child of nodes.values()) {
+      const parentLinks = g.parentLinks(child.id).filter((l) => nodes.has(l.parentId));
+      if (!parentLinks.length) continue;
+      const byUnion = new Map<string, typeof parentLinks>();
+      for (const l of parentLinks) {
+        const key = l.unionId && unions.some((u) => u.id === l.unionId) ? l.unionId : l.parentId;
+        byUnion.set(key, [...(byUnion.get(key) ?? []), l]);
+      }
+      for (const [key, ls] of byUnion) {
+        if (linked.has(child.id + '|' + key)) continue;
+        const u = unions.find((x) => x.id === key);
+        const parent = nodes.get(ls[0].parentId)!;
+        const from = u ? { x: u.x, y: u.y + NODE_H / 2 } : { x: parent.x + NODE_W / 2, y: parent.y + NODE_H };
+        links.push({
+          id: `${key}->${child.id}`,
+          childId: child.id,
+          from,
+          to: { x: child.x + NODE_W / 2, y: child.y },
+          // Its own bus, just above the child, so it never reads as part of
+          // the sibling line of the family the child was placed in.
+          busY: child.y - (GEN_H - NODE_H) * 0.22,
+          kind: ls[0].type,
+        });
+      }
+    }
+  }
+
   function finish(): TreeLayout {
+    linkAcrossFamilies();
     // Re-derive link sources so shifted unions stay attached.
     for (const l of links) {
       const u = unions.find((x2) => `${x2.id}->${l.childId}` === l.id);
@@ -270,6 +324,17 @@ export function layoutFamily(g: FamilyGraph, opts: LayoutOptions = {}): TreeLayo
   }
 }
 
+/**
+ * Order siblings so anyone married to a partner from another family comes
+ * last — that family is laid out to the right, so the line joining the two
+ * stays short.
+ */
+function marriedOutLast(g: FamilyGraph, kids: ID[], parents: ID[]): ID[] {
+  const marriedOut = (id: ID) =>
+    g.partners(id).some((p) => g.parents(p.id).some((pp) => !parents.includes(pp.id)));
+  return [...kids].sort((a, b) => Number(marriedOut(a)) - Number(marriedOut(b)));
+}
+
 /** Which people this layout should draw. */
 function visibleSet(g: FamilyGraph, opts: LayoutOptions): Set<ID> {
   const all = new Set<ID>(g.people.keys());
@@ -290,9 +355,15 @@ function visibleSet(g: FamilyGraph, opts: LayoutOptions): Set<ID> {
 
 /** Root people to start each family block from. */
 function pickRoots(g: FamilyGraph, include: Set<ID>): ID[] {
-  const candidates = g.roots().filter((p) => include.has(p.id));
-  // Largest component first, then by birth year (already sorted by roots()).
-  const sorted = candidates.sort((a, b) => g.component(a.id) - g.component(b.id));
+  // Someone with no recorded parents who married into the family is not a
+  // root: they are placed beside their partner, inside the partner's family.
+  const marriedIn = (id: ID) => g.partners(id).some((p) => include.has(p.id) && g.parents(p.id).length > 0);
+  const candidates = g.roots().filter((p) => include.has(p.id) && !marriedIn(p.id));
+  // Largest family first, so the main line claims the centre of the canvas.
+  const size = new Map(candidates.map((p) => [p.id, g.descendants(p.id).size]));
+  const sorted = candidates.sort(
+    (a, b) => g.component(a.id) - g.component(b.id) || size.get(b.id)! - size.get(a.id)!,
+  );
   const seen = new Set<ID>();
   const out: ID[] = [];
   for (const p of sorted) {

@@ -8,29 +8,22 @@ Everything lives on the device. There is no server, no account, and nothing is
 uploaded anywhere. Moving the archive between devices is done with an explicit
 export.
 
-## Getting the real family in
+## The family
 
-The archive ships with a **small demonstration family (surname Bennani) that is
-clearly labelled and is not the Abderrahmane family**. It exists only so the
-interface has something to show before the real data arrives.
+The app ships with the Abderrahmane family as recorded in FamilyEcho on
+25 September 2026: 76 people across five generations, transcribed from the
+FamilyEcho chart into `src/data/family.json`. The chart records names,
+gender, partnerships and parents, but no dates or places, so none are stored.
+Two parents FamilyEcho shows only as "Father of / Mother of Halima" are kept
+as والد حليمة and والدة حليمة.
 
-To import the real tree:
+A first visit loads this family. After that, each device keeps its own edited
+copy in the browser, and shipping a new `family.json` does not overwrite it.
 
-1. Open the existing tree on FamilyEcho and choose **Download** → **GEDCOM**.
-2. In this app, go to **Settings → Import family tree**.
-3. Drop the `.ged` file on the drop zone.
-4. Read the **import preview** — it reports how many people, marriages and
-   parent links were found, which records match what is already stored, likely
-   duplicates inside the file, and any impossible dates.
-5. Choose **Merge** (keeps what is here, matches rather than duplicates) or
-   **Replace everything**, tick "remove the demonstration family", and confirm.
-
-Nothing is written until that confirmation, and a restore point is saved first
-(**Settings → Restore points**).
-
-JSON backups produced by this app and simple CSV files (`firstName`,
-`lastName`, `birthDate`, `father`, `mother`, `spouse` …) import the same way.
-Export is available as GEDCOM 5.5.1, full JSON, CSV, and a typeset print/PDF view.
+To bring in a newer version later, export a GEDCOM from FamilyEcho
+(**Download → GEDCOM**) and use **Settings → Import family tree**. Nothing is
+written until you confirm the preview, and a restore point is saved first.
+Export is available as GEDCOM 5.5.1, full JSON, CSV, and a typeset print view.
 
 ## Running it
 

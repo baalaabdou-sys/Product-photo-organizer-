@@ -29,7 +29,31 @@ export function TreeCanvas({ onOpenPerson }: { onOpenPerson: (id: ID) => void })
   const select = useArchive((s) => s.select);
 
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState<Set<ID>>(new Set());
+  const [collapsed, setCollapsed] = useState<Set<ID>>(() => defaultCollapsed(graph));
+
+  // A new or re-imported family starts folded to a readable depth again.
+  const graphRef = useRef(graph);
+  useEffect(() => {
+    if (graphRef.current.size === graph.size) { graphRef.current = graph; return; }
+    graphRef.current = graph;
+    setCollapsed(defaultCollapsed(graph));
+  }, [graph]);
+
+  // Anyone the app points at — a search result, a relationship path — must be
+  // on the canvas, so unfold whichever branches hide them.
+  useEffect(() => {
+    const targets = [selectedId, ...(highlightPath ?? [])].filter(Boolean) as ID[];
+    if (!targets.length) return;
+    setCollapsed((prev) => {
+      let next: Set<ID> | null = null;
+      for (const t of targets) {
+        for (const a of graph.ancestors(t).keys()) {
+          if (prev.has(a)) { next ??= new Set(prev); next.delete(a); }
+        }
+      }
+      return next ?? prev;
+    });
+  }, [selectedId, highlightPath, graph]);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const { camera, fitTo, centerOn, zoomBy, interacting } = useViewport(wrapRef);
   const [ready, setReady] = useState(false);
@@ -77,9 +101,21 @@ export function TreeCanvas({ onOpenPerson }: { onOpenPerson: (id: ID) => void })
         pad, 0,
       );
     } else {
-      const anchorId = meId ?? layout.order[0]?.id;
-      const anchor = anchorId ? layout.nodes.get(anchorId) : undefined;
-      if (anchor) centerOn(anchor.x + NODE_W / 2, anchor.y + NODE_H / 2, LEGIBLE_MIN + 0.1, 0);
+      // Open on the viewer if they have said who they are; otherwise on the
+      // family's largest household — a couple, their parents and their
+      // children — which reads as a family at a glance.
+      const me = meId ? layout.nodes.get(meId) : undefined;
+      const frame = me ? null : openingFrame(graph, layout);
+      if (me) centerOn(me.x + NODE_W / 2, me.y + NODE_H / 2, LEGIBLE_MIN + 0.1, 0);
+      else if (frame) {
+        const k = Math.min((size.w - 112) / frame.width, (size.h - 112) / frame.height);
+        // A household too wide for the screen opens on its couple, readable.
+        if (k >= LEGIBLE_MIN) fitTo(frame, 56, 0, 1);
+        else {
+          const couple = openingCouple(graph, layout);
+          centerOn(couple.x, couple.y + GEN_H * 0.45, LEGIBLE_MIN + 0.1, 0);
+        }
+      }
       else fitTo(
         { x: layout.bounds.minX, y: layout.bounds.minY, width: layout.bounds.width, height: layout.bounds.height },
         pad, 0,
@@ -526,4 +562,53 @@ function neighbourInDirection(key: string, from: ID, layout: TreeLayout): ID | n
     if (!best || score < best.score) best = { id: n.id, score };
   }
   return best?.id ?? null;
+}
+
+/**
+ * Fold the tree so the first view stays readable: show generations from the
+ * top until the next one would push the canvas past roughly thirty people,
+ * then fold everyone in the last shown generation who has children.
+ */
+const FIRST_VIEW_BUDGET = 30;
+function defaultCollapsed(graph: ReturnType<typeof useArchive.getState>['graph']): Set<ID> {
+  const bands = graph.byGeneration();
+  let shown = 0;
+  for (let i = 0; i < bands.length - 1; i++) {
+    shown += bands[i].length;
+    if (shown + bands[i + 1].length > FIRST_VIEW_BUDGET) {
+      return new Set(bands[i].filter((p) => graph.children(p.id).length > 0).map((p) => p.id));
+    }
+  }
+  return new Set();
+}
+
+/** Centre point of the household couple chosen by openingFrame. */
+function openingCouple(
+  graph: ReturnType<typeof useArchive.getState>['graph'], layout: TreeLayout,
+): { x: number; y: number } {
+  let best: { u: TreeLayout['unions'][number]; n: number } | null = null;
+  for (const u of layout.unions) {
+    const n = graph.childrenOfUnion(u.id).filter((c) => layout.nodes.has(c.id)).length;
+    if (!best || n > best.n) best = { u, n };
+  }
+  return best ? { x: best.u.x, y: best.u.y } : { x: 0, y: 0 };
+}
+
+/** The household with the most children on screen, with its parents above. */
+function openingFrame(
+  graph: ReturnType<typeof useArchive.getState>['graph'], layout: TreeLayout,
+): { x: number; y: number; width: number; height: number } | null {
+  let best: { ids: ID[]; n: number } | null = null;
+  for (const u of layout.unions) {
+    const kids = graph.childrenOfUnion(u.id).map((c) => c.id).filter((id) => layout.nodes.has(id));
+    if (!best || kids.length > best.n) {
+      const elders = [...graph.parents(u.a), ...graph.parents(u.b)].map((p) => p.id).filter((id) => layout.nodes.has(id));
+      best = { ids: [u.a, u.b, ...kids, ...elders], n: kids.length };
+    }
+  }
+  if (!best) return null;
+  const ns = best.ids.map((id) => layout.nodes.get(id)!).filter(Boolean);
+  const minX = Math.min(...ns.map((n) => n.x)), maxX = Math.max(...ns.map((n) => n.x + NODE_W));
+  const minY = Math.min(...ns.map((n) => n.y)), maxY = Math.max(...ns.map((n) => n.y + NODE_H));
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
 }

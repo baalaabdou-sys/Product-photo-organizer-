@@ -6,7 +6,6 @@ import { Portrait } from './../components/Portrait';
 import { fullName, firstName } from '../domain/relationships';
 import { lifespan, formatDate, relativeDays } from '../domain/dates';
 import { riseVariants } from '../lib/motion';
-import { DEMO_NOTICE } from '../data/demo';
 import type { ID } from '../domain/types';
 import { haptic } from '../lib/haptics';
 
@@ -42,7 +41,7 @@ export function Home() {
           style={{ background: 'rgb(var(--c-paper-3))', color: 'rgb(var(--c-muted))' }}
           role="note"
         >
-          <span>{DEMO_NOTICE}</span>
+          <span>This archive still contains demonstration records that are not real relatives.</span>
           <button
             type="button"
             className="-my-2 py-2 underline underline-offset-2"
