@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OtakuArabian Media Kit</title>
-<meta name="description" content="Media kit for @otakuarabian: songs in the voices of anime characters for Arabic-speaking anime fans. 204K followers on TikTok and 35K on Instagram.">
+<meta name="description" content="Media kit for @otakuarabian: songs in the voices of anime characters, watched by anime fans around the world. 204K followers on TikTok and 35K on Instagram.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="OtakuArabian Media Kit">
-<meta property="og:description" content="204K followers on TikTok and 35K on Instagram. Anime voices for Arabic-speaking fans. Open to brand collaborations.">
+<meta property="og:description" content="204K followers on TikTok and 35K on Instagram. Anime voices for fans around the world. Open to brand collaborations.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23C2255A'/%3E%3Ctext x='32' y='43' font-family='Arial,sans-serif' font-weight='700' font-size='28' text-anchor='middle' fill='%23fff'%3EOA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -309,6 +309,51 @@
   .profile:hover { border-color: var(--ink-3); }
   .profile-platform { color: var(--ink-2); font-size: 0.875rem; }
   .profile bdi { font-weight: 600; }
+  .video-group { display: grid; gap: 10px; }
+  .videos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  @media (min-width: 600px) { .videos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .video {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .video:hover { border-color: var(--ink-3); }
+  .video-thumb {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 84px;
+    padding-inline: 16px;
+    background: var(--accent-soft);
+  }
+  .mini-wave { display: flex; align-items: center; gap: 3px; width: 100%; height: 44px; }
+  .mini-wave span {
+    flex: 1 1 0;
+    min-width: 0;
+    height: calc(var(--h, 0.5) * 100%);
+    border-radius: 99px;
+    background: var(--accent);
+    opacity: 0.45;
+  }
+  .video-play {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+  }
+  .video-meta { display: grid; align-content: start; gap: 4px; padding: 14px 16px 16px; }
+  .video-title { font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem; line-height: 1.3; }
 
   /* Packages */
   .packages { display: grid; gap: 14px; }
@@ -427,7 +472,7 @@
         <h1 class="wordmark" id="wordmark"><span>Otaku</span><span class="wm-accent">Arabian</span></h1>
       </div>
       <div class="hero-copy">
-        <p class="tagline" data-i18n="tagline">Songs in the voices of anime characters, made for Arabic-speaking anime fans.</p>
+        <p class="tagline" data-i18n="tagline">Songs in the voices of anime characters, watched by anime fans around the world.</p>
         <p class="handle"><bdi>@otakuarabian</bdi> <span data-i18n="handlesOn">on TikTok and Instagram</span></p>
       </div>
       <a class="btn" href="#contact">
@@ -476,7 +521,7 @@
   <section class="section wrap" aria-labelledby="audience-title">
     <h2 id="audience-title" data-i18n="audienceTitle">Who's watching</h2>
     <div class="body">
-      <p class="lead" data-i18n="audienceText">Arabic-speaking anime fans.</p>
+      <p class="lead" data-i18n="audienceText">Anime fans from many countries.</p>
       <div class="country-group">
         <p class="label" id="countries-label" data-i18n="countriesLabel">Top countries</p>
         <ul class="countries" aria-labelledby="countries-label">
@@ -506,9 +551,37 @@
           <bdi>@otakuarabian</bdi>
         </a>
       </div>
-      <div class="todo-box" data-todo>
-        <span class="todo-pill" data-i18n="todoPill">To fill</span>
-        <p data-i18n="videosTodo">Add links to your three best videos with their view counts. They'll show here as cards.</p>
+      <div class="video-group">
+        <p class="label" id="videos-label" data-i18n="videosLabel">Most viewed videos</p>
+        <ul class="videos" aria-labelledby="videos-label">
+          <li>
+            <a class="video" href="https://vt.tiktok.com/ZSbrtoqDX/" target="_blank" rel="noopener">
+              <span class="video-thumb"><span class="mini-wave" aria-hidden="true"></span><span class="video-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></span>
+              <span class="video-meta">
+                <span class="video-title" data-i18n="watchOnTikTok">Watch on TikTok</span>
+                <span class="todo-hint" data-todo data-i18n="videoTodo">Add the view count and a short title</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="video" href="https://vt.tiktok.com/ZSbrtpjAs/" target="_blank" rel="noopener">
+              <span class="video-thumb"><span class="mini-wave" aria-hidden="true"></span><span class="video-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></span>
+              <span class="video-meta">
+                <span class="video-title" data-i18n="watchOnTikTok">Watch on TikTok</span>
+                <span class="todo-hint" data-todo data-i18n="videoTodo">Add the view count and a short title</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="video" href="https://vt.tiktok.com/ZSbrtwb1b/" target="_blank" rel="noopener">
+              <span class="video-thumb"><span class="mini-wave" aria-hidden="true"></span><span class="video-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span></span>
+              <span class="video-meta">
+                <span class="video-title" data-i18n="watchOnTikTok">Watch on TikTok</span>
+                <span class="todo-hint" data-todo data-i18n="videoTodo">Add the view count and a short title</span>
+              </span>
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -600,7 +673,7 @@
       draftPill: "Draft",
       banner: "Fill in the dashed boxes before you share this page.",
       eyebrow: "Media kit · 2026",
-      tagline: "Songs in the voices of anime characters, made for Arabic-speaking anime fans.",
+      tagline: "Songs in the voices of anime characters, watched by anime fans around the world.",
       handlesOn: "on TikTok and Instagram",
       cta: "Start a collaboration",
       reachTitle: "Reach",
@@ -612,7 +685,7 @@
       fromAnalytics: "Add from TikTok Analytics",
       asOf: "Follower counts as of September 2026.",
       audienceTitle: "Who's watching",
-      audienceText: "Arabic-speaking anime fans.",
+      audienceText: "Anime fans from many countries.",
       countriesLabel: "Top countries",
       country1: "Saudi Arabia",
       country2: "Egypt",
@@ -621,7 +694,9 @@
       audienceTodo: "Add each country's share, the age range and the gender split from TikTok Analytics. They'll show here as a chart.",
       contentTitle: "The content",
       contentText: "Short videos where songs are sung in the voices of anime characters.",
-      videosTodo: "Add links to your three best videos with their view counts. They'll show here as cards.",
+      videosLabel: "Most viewed videos",
+      watchOnTikTok: "Watch on TikTok",
+      videoTodo: "Add the view count and a short title",
       packagesTitle: "Ways to work together",
       p1Title: "Dedicated TikTok video",
       p1Text: "A full video built around your product, in the style my audience follows me for.",
@@ -657,7 +732,7 @@
       draftPill: "مسودة",
       banner: "املأ المربعات المنقّطة قبل مشاركة هذه الصفحة.",
       eyebrow: "الملف الإعلامي · 2026",
-      tagline: "أغانٍ بأصوات شخصيات الأنمي، لعشّاق الأنمي في العالم العربي.",
+      tagline: "أغانٍ بأصوات شخصيات الأنمي، يشاهدها عشّاق الأنمي حول العالم.",
       handlesOn: "على تيك توك وإنستغرام",
       cta: "ابدأ تعاونًا",
       reachTitle: "الوصول",
@@ -669,7 +744,7 @@
       fromAnalytics: "أضِفه من إحصاءات تيك توك",
       asOf: "أعداد المتابعين حتى سبتمبر 2026.",
       audienceTitle: "من يشاهد",
-      audienceText: "عشّاق الأنمي الناطقون بالعربية.",
+      audienceText: "عشّاق الأنمي من دول كثيرة.",
       countriesLabel: "أبرز الدول",
       country1: "السعودية",
       country2: "مصر",
@@ -678,7 +753,9 @@
       audienceTodo: "أضِف نسبة كل دولة والفئة العمرية ونسبة الذكور والإناث من إحصاءات تيك توك، وستظهر هنا في رسم بياني.",
       contentTitle: "المحتوى",
       contentText: "فيديوهات قصيرة تُغنّى فيها الأغاني بأصوات شخصيات الأنمي.",
-      videosTodo: "أضِف روابط أفضل ثلاثة فيديوهات لديك مع عدد مشاهدات كل منها، وستظهر هنا على شكل بطاقات.",
+      videosLabel: "الأكثر مشاهدة",
+      watchOnTikTok: "شاهد على تيك توك",
+      videoTodo: "أضِف عدد المشاهدات وعنوانًا قصيرًا",
       packagesTitle: "طرق التعاون",
       p1Title: "فيديو تيك توك مخصّص",
       p1Text: "فيديو كامل مبني حول منتجك، بالأسلوب الذي يتابعني الجمهور من أجله.",
@@ -794,27 +871,32 @@
     bars.forEach((bar, i) => bar.classList.toggle("on", i < played));
   }
 
-  function buildWave() {
-    const width = wave.clientWidth || 360;
-    const count = Math.max(36, Math.min(120, Math.round(width / 8)));
-    const progress = total ? played / total : 0.4;
-    let seed = 20260928;
+  // Draws bars shaped like a sung phrase. The same seed always gives the same shape.
+  function drawBars(container, count, seed, phase) {
     const random = () => {
       seed = (seed * 16807) % 2147483647;
       return seed / 2147483647;
     };
     const fragment = document.createDocumentFragment();
-    bars = [];
+    const drawn = [];
     for (let i = 0; i < count; i++) {
       const x = i / (count - 1);
-      const phrase = 0.45 + 0.55 * Math.abs(Math.sin(x * Math.PI * 3.5 + 0.4));
+      const phrase = 0.45 + 0.55 * Math.abs(Math.sin(x * Math.PI * 3.5 + phase));
       const height = Math.min(1, Math.max(0.14, phrase * (0.3 + 0.7 * random())));
       const bar = document.createElement("span");
       bar.style.setProperty("--h", height.toFixed(3));
-      bars.push(bar);
+      drawn.push(bar);
       fragment.appendChild(bar);
     }
-    wave.replaceChildren(fragment);
+    container.replaceChildren(fragment);
+    return drawn;
+  }
+
+  function buildWave() {
+    const width = wave.clientWidth || 360;
+    const count = Math.max(36, Math.min(120, Math.round(width / 8)));
+    const progress = total ? played / total : 0.4;
+    bars = drawBars(wave, count, 20260928, 0.4);
     total = count;
     played = Math.min(total, Math.round(total * progress));
     paintWave();
@@ -839,6 +921,10 @@
   });
   document.addEventListener("visibilitychange", startWave);
   if (reduceMotion.addEventListener) reduceMotion.addEventListener("change", startWave);
+
+  document.querySelectorAll(".mini-wave").forEach((el, i) => {
+    drawBars(el, 28, 4099 + i * 7919, 1.1 + i * 1.3);
+  });
 
   applyLang();
   buildWave();
